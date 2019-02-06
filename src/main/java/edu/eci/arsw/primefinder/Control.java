@@ -21,7 +21,6 @@ public class Control extends Thread {
     private Control() {
         super();
         this.pft = new  PrimeFinderThread[NTHREADS];
-
         int i;
         for(i = 0;i < NTHREADS - 1; i++) {
             PrimeFinderThread elem = new PrimeFinderThread(i*NDATA, (i+1)*NDATA);
@@ -39,6 +38,20 @@ public class Control extends Thread {
         for(int i = 0;i < NTHREADS;i++ ) {
             pft[i].start();
         }
+        
+        
+    }
+    public void pause() {
+    	for (int i=0;i<NTHREADS;i++) {
+    		try {
+				pft[i].wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+    	}
+    }
+    public void play() {
+    	pft.notifyAll();
     }
     
 }
