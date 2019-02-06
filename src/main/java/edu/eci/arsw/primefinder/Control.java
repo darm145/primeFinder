@@ -5,20 +5,23 @@
  */
 package edu.eci.arsw.primefinder;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 /**
  *
  */
-public class Control extends Thread implements KeyListener{
+public class Control extends Thread {
     
     private final static int NTHREADS = 3;
     private final static int MAXVALUE = 30000000;
     private final static int TMILISECONDS = 5000;
 
     private final int NDATA = MAXVALUE / NTHREADS;
+    private BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
 
     private PrimeFinderThread pft[];
     
@@ -43,46 +46,48 @@ public class Control extends Thread implements KeyListener{
         for(int i = 0;i < NTHREADS;i++ ) {
             pft[i].start();
         }
+        
         do {
         	running=false;
+        	try {
+				Thread.sleep(TMILISECONDS);
+				pause();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			for(int i=0;i<NTHREADS;i++) {
 				System.out.println("el hilo "+i+" ha encontrado hasta el momento "+pft[i].getPrimes().size()+" primos");
-				synchronized (pft[i]) {
-					try {
-						pft[i].wait();
-						running=running || pft[i].running();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				
+				running=running || pft[i].running();
 			}
+			try {
+				br.readLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			continuar();
+			
+			
         }while(running);
+        for(int i=0;i<NTHREADS;i++) {
+			System.out.println("en total el hilo "+i+" encontro "+pft[i].getPrimes().size()+" primos");
+			running=running || pft[i].running();
+		}
     }
     
     
-    public void play() {
+    private void continuar() {
+    	for(PrimeFinderThread e:pft) {
+    		e.Resume();
+    	}
+		
+	}
+
+	public void play() {
     	pft.notifyAll();
     }
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		
-		
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		
-	}
-
-	@SuppressWarnings("unlikely-arg-type")
-	@Override
-	public void keyTyped(KeyEvent e) {
-		if(e.equals(KeyEvent.VK_ENTER)) {
-			this.play();	
-		}
-		
-	}
-    
+    public void pause() {
+    	for(PrimeFinderThread e:pft) {
+    		e.pause();
+    	}
+    }    
 }

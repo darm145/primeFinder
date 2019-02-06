@@ -9,22 +9,35 @@ public class PrimeFinderThread extends Thread{
 	int a,b;
 	
 	private  List<Integer> primes;
-	private boolean running;
+	private boolean running,paused=false;
 	public PrimeFinderThread(int a, int b) {
 		super();
                 this.primes = new LinkedList<>();
 		this.a = a;
 		this.b = b;
 		running=true;
+		
 	}
 
         @Override
 	public void run(){
-            for (int i= a;i < b;i++){						
-                if (isPrime(i)){
-                    primes.add(i);
-                }
-            }
+        	while (a<b) {
+        		if (paused) {
+        			try {
+        				synchronized(this) {
+        					wait();
+        				}
+						
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+        		}
+        		if(isPrime(a)) {
+        			primes.add(a);
+        			
+        		}
+        		a++;
+        	}
             running=false;
 	}
 	
@@ -46,6 +59,16 @@ public class PrimeFinderThread extends Thread{
 	}
 	public boolean running() {
 		return running;
+	}
+	public void pause() {
+		paused=true;
+	}
+	public void Resume() {
+		paused=false;
+		synchronized(this) {
+			this.notify();
+		}
+		
 	}
 	
 }
