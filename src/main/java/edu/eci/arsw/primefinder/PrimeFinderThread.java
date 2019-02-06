@@ -8,13 +8,14 @@ public class PrimeFinderThread extends Thread{
 	
 	int a,b;
 	
-	private List<Integer> primes;
-	
+	private  List<Integer> primes;
+	private boolean running;
 	public PrimeFinderThread(int a, int b) {
 		super();
                 this.primes = new LinkedList<>();
 		this.a = a;
 		this.b = b;
+		running=true;
 	}
 
         @Override
@@ -22,9 +23,9 @@ public class PrimeFinderThread extends Thread{
             for (int i= a;i < b;i++){						
                 if (isPrime(i)){
                     primes.add(i);
-                    System.out.println(i);
                 }
             }
+            running=false;
 	}
 	
 	boolean isPrime(int n) {
@@ -42,6 +43,9 @@ public class PrimeFinderThread extends Thread{
 
 	public List<Integer> getPrimes() {
 		return primes;
+	}
+	public boolean running() {
+		return running;
 	}
 	
 }
